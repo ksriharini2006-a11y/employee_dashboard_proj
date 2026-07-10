@@ -1,11 +1,12 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
 import { isValidEmail } from '../../utils/validators';
+import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '' });
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
@@ -35,8 +36,7 @@ const Register = () => {
     try {
       setLoading(true);
       const res = await axiosClient.post('/auth/register', form);
-      localStorage.setItem('token', res.data.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.data.user));
+      login(res.data.data);
       navigate('/dashboard');
     } catch (err) {
       setApiError(err.response?.data?.message || 'Registration failed. Please try again.');

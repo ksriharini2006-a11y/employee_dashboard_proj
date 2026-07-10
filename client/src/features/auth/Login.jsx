@@ -1,11 +1,12 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
 import { isValidEmail } from '../../utils/validators';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
@@ -33,8 +34,7 @@ const Login = () => {
     try {
       setLoading(true);
       const res = await axiosClient.post('/auth/login', form);
-      localStorage.setItem('token', res.data.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.data.user));
+      login(res.data.data);
       navigate('/dashboard');
     } catch (err) {
       setApiError(err.response?.data?.message || 'Login failed. Please try again.');

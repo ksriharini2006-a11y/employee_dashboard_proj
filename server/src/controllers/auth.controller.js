@@ -4,7 +4,7 @@ const { success } = require('../utils/apiResponse');
 
 exports.register = async (req, res, next) => {
   try {
-    const result = await authService.register(req.body);
+    const result = await authService.register(req.body, res);
     return success(res, 201, result, 'Registration successful');
   } catch (err) {
     next(err);
@@ -13,8 +13,28 @@ exports.register = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   try {
-    const result = await authService.login(req.body);
+    const result = await authService.login(req.body, res);
     return success(res, 200, result, 'Login successful');
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.refresh = async (req, res, next) => {
+  try {
+    const rawRefreshToken = req.cookies?.refreshToken;
+    const result = await authService.refresh(rawRefreshToken, res);
+    return success(res, 200, result, 'Token refreshed');
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.logout = async (req, res, next) => {
+  try {
+    const rawRefreshToken = req.cookies?.refreshToken;
+    await authService.logout(rawRefreshToken, res);
+    return success(res, 200, null, 'Logged out successfully');
   } catch (err) {
     next(err);
   }
@@ -23,7 +43,6 @@ exports.login = async (req, res, next) => {
 exports.forgotPassword = async (req, res, next) => {
   try {
     await authService.forgotPassword(req.body.email);
-    // Same message regardless of whether the email exists (avoid leaking data)
     return success(res, 200, null, 'If that email is registered, a reset link has been sent');
   } catch (err) {
     next(err);

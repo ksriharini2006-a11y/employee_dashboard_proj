@@ -10,7 +10,7 @@ const employeeRoutes = require('./routes/employee.routes');
 const errorHandler = require('./middleware/error.middleware');
 
 const app = express();
-
+app.set('trust proxy', 1);
 app.use(helmet());
 
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
